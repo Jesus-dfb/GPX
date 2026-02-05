@@ -1,0 +1,123 @@
+[
+  {
+    "id": 1,
+    "name": "Usuario Demo",
+    "email": "demo@gpx.com",
+    "password": "123456",
+    "balance": {
+      "btc": 0.0001055,
+      "eur": 599.5000000000002
+    },
+    "assets": [
+      {
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "amount": 0.0001055
+      },
+      {
+        "symbol": "ETH",
+        "name": "Ethereum",
+        "amount": 1.5
+      }
+    ],
+    "withdrawHistory": [
+      {
+        "id": "1767990296943",
+        "type": "withdraw",
+        "currency": "eur",
+        "amount": 23.76,
+        "fee": 0.5,
+        "destination": "ES12345845068450808",
+        "status": "completed",
+        "createdAt": "2026-01-09T20:24:56.943Z"
+      },
+      {
+        "id": "1767618173193",
+        "type": "withdraw",
+        "currency": "eur",
+        "amount": 3000,
+        "fee": 0.5,
+        "destination": "24412412",
+        "status": "completed",
+        "createdAt": "2026-01-05T13:02:53.193Z"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Daniel Jimenez Luque",
+    "email": "danijl0405@gmail.com",
+    "password": "daniel",
+    "balance": {
+      "btc": 150,
+      "eur": 8.5
+    },
+    "assets": [],
+    "withdrawHistory": [
+      {
+        "id": "1767622656702",
+        "type": "withdraw",
+        "currency": "eur",
+        "amount": 10,
+        "fee": 0.5,
+        "destination": "5115615616515616156615615615",
+        "status": "completed",
+        "createdAt": "2026-01-05T14:17:36.702Z"
+      },
+      {
+        "id": "1767617018548",
+        "type": "withdraw",
+        "currency": "eur",
+        "amount": 30,
+        "fee": 0.5,
+        "destination": "5115615616515616156615615615",
+        "status": "completed",
+        "createdAt": "2026-01-05T12:43:38.548Z"
+      },
+      {
+        "id": "1767616989213",
+        "type": "withdraw",
+        "currency": "eur",
+        "amount": 50,
+        "fee": 0.5,
+        "destination": "5115615616515616156615615615",
+        "status": "completed",
+        "createdAt": "2026-01-05T12:43:09.213Z"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Alejandro",
+    "email": "ale@gmail.com",
+    "password": "123456",
+    "balance": {
+      "btc": 0,
+      "eur": 399.5
+    },
+    "assets": [],
+    "withdrawHistory": [
+      {
+        "id": "1767623160788",
+        "type": "withdraw",
+        "currency": "eur",
+        "amount": 100,
+        "fee": 0.5,
+        "destination": "ES1234567890",
+        "status": "completed",
+        "createdAt": "2026-01-05T14:26:00.788Z"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "efn",
+    "email": "vaeln@fa.cinm",
+    "password": "vanvfeaiohfaif",
+    "balance": {
+      "btc": 0,
+      "eur": 0
+    },
+    "assets": []
+  }
+]

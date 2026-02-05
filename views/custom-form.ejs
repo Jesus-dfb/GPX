@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <%- include('partials/header') %>
+    <style>
+        .custom-form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: var(--card-bg, #1e222d);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            color: var(--text-primary, #fff);
+        }
+        .custom-form-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color, #f0b90b);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color, #2a2e39);
+            border-radius: 6px;
+            background: var(--input-bg, #2a2e39);
+            color: #fff;
+            font-size: 16px;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color, #f0b90b);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color, #f0b90b);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-form-container">
+        <h1>Formulario de Contacto</h1>
+        
+        <% if (locals.success) { %>
+            <div class="alert alert-success">
+                <%= success %>
+            </div>
+        <% } %>
+
+        <form action="/custom-form" method="POST">
+            <div class="form-group">
+                <label for="name">Nombre</label>
+                <input type="text" id="name" name="name" required placeholder="Tu nombre">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" required placeholder="tu@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="message">Mensaje</label>
+                <textarea id="message" name="message" rows="5" required placeholder="Escribe tu mensaje aquí..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Enviar Mensaje</button>
+        </form>
+    </div>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

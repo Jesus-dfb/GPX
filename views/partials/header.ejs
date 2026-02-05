@@ -1,0 +1,40 @@
+<header>
+  <div class="header-content">
+    <a href="/" class="logo">
+      <img src="/images/LogoGPX.png" alt="GPX Logo">
+    </a>
+    <nav>
+      <ul>
+        <% if (locals.user) { %>
+          <!-- Usuario autenticado -->
+          <li><a href="/deposit">Añadir fondos</a></li>
+          <li><a href="/dashboard">Panel</a></li>
+          <li><a href="/market">Mercado</a></li>
+          <li><a href="/support">Soporte</a></li>
+          <li><a href="/custom-form">Contacto</a></li>
+          <% } else { %>
+            <!-- Usuario NO autenticado -->
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/market">Mercado</a></li>
+            <li><a href="/support">Soporte</a></li>
+            <li><a href="/custom-form">Contacto</a></li>
+            <% } %>
+      </ul>
+    </nav>
+    <div class="user-actions">
+      <% if (locals.user) { %>
+        <!-- Usuario autenticado -->
+        <div class="user-profile">
+          <span class="user-email">
+            <%= user.email || 'Usuario' %>
+          </span>
+          <a href="/auth/logout" class="btn btn-outline btn-logout">Cerrar Sesión</a>
+        </div>
+        <% } else { %>
+          <!-- Usuario NO autenticado -->
+          <a href="/register" class="btn btn-outline btn-register">Registrarse</a>
+          <a href="/login" class="btn btn-primary btn-login">Iniciar Sesión</a>
+          <% } %>
+    </div>
+  </div>
+</header>

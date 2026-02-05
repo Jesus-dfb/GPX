@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= title %>
+  </title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link rel='stylesheet' href='/stylesheets/index.css' />
+</head>
+
+<body>
+  <video autoplay muted loop playsinline class="background-video">
+    <source src="/images/FondoPagina.mp4" type="video/mp4">
+  </video>
+
+  <%- include('partials/header') %>
+
+    <section class="hero-section">
+      <div class="container">
+        <h1 class="hero-title">
+          Únete a la mejor plataforma<br>
+          de <span class="highlight">tradeo</span> del mercado.
+        </h1>
+      </div>
+    </section>
+
+    <section class="ai-section" style="position: relative; z-index: 999; margin: 30px 0;">
+      <div class="container">
+        <div style="
+          background: rgba(15, 23, 42, 0.85); 
+          backdrop-filter: blur(8px);
+          border: 1px solid #38bdf8; 
+          border-radius: 16px; 
+          padding: 30px; 
+          text-align: center; 
+          max-width: 800px; 
+          margin: 0 auto;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);">
+
+          <h2 style="color: #fff; margin-bottom: 10px; font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+            🤖 Galpe AI Analyst
+          </h2>
+          <p style="color: #cbd5e1; margin-bottom: 20px; font-size: 1.1rem;">
+            Deja que nuestra Inteligencia Artificial analice el mercado en tiempo real por ti.
+          </p>
+
+          <button onclick="consultarIA()" id="btn-ia" style="
+            background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+            color: white; 
+            border: none; 
+            padding: 12px 30px; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+            transition: transform 0.2s;">
+            ⚡ Analizar Mercado Ahora
+          </button>
+
+          <div id="resultado-ia" style="
+            display: none; 
+            margin-top: 25px; 
+            text-align: left; 
+            background: rgba(0,0,0,0.4); 
+            padding: 20px; 
+            border-radius: 10px; 
+            border-left: 4px solid #38bdf8; 
+            color: #e2e8f0; 
+            line-height: 1.6;
+            font-size: 1.05rem;">
+          </div>
+
+        </div>
+      </div>
+    </section>
+    <section class="crypto-table-section">
+      <div class="container">
+        <table class="crypto-table">
+          <thead>
+            <tr>
+              <th>Activos</th>
+              <th>Precio de la moneda</th>
+              <th>Cambio en 24h</th>
+              <th>Operar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (locals.coins && coins.length> 0) { %>
+              <% coins.forEach(function(coin) { %>
+                <tr>
+                  <td>
+                    <div class="coin-info">
+                      <%- include('partials/coin-icon', { symbol: coin.symbol }) %>
+                        <%= coin.name %>
+                    </div>
+                  </td>
+                  <td class="price-cell">
+                    <%= coin.price_eur %> €
+                  </td>
+                  <td class="<%= coin.change_24h >= 0 ? 'text-green' : 'text-red' %>">
+                    <%= coin.change_24h>= 0 ? '+' : '' %><%= coin.change_24h %> %
+                  </td>
+                  <td>
+                    <% if (locals.user) { %>
+                      <a href="/trade/<%= coin.symbol %>" class="btn-trade">Operar</a>
+                      <% } else { %>
+                        <a href="/login" class="btn-trade">Operar</a>
+                        <% } %>
+                  </td>
+                </tr>
+                <% }); %>
+                  <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="container">
+        <h2 class="cta-title">
+          Obtén un <span class="highlight">control</span> total de tu<br>
+          crédito y comercia con tu moneda<br>
+          preferida.
+        </h2>
+      </div>
+    </section>
+
+    <%- include('partials/footer') %>
+
+      <script>
+        // Apply dynamic colors to coin icons
+        document.querySelectorAll('.coin-icon[data-color]').forEach(icon => {
+          icon.style.background = icon.getAttribute('data-color');
+        });
+
+        // Lógica para conectar con la IA
+        async function consultarIA() {
+          const btn = document.getElementById('btn-ia');
+          const output = document.getElementById('resultado-ia');
+
+          // Estado de carga visual
+          btn.disabled = true;
+          btn.innerHTML = "📡 Analizando datos...";
+          btn.style.opacity = "0.7";
+          output.style.display = "block";
+          output.innerHTML = "<i>Conectando con los servidores de noticias globales...</i>";
+
+          try {
+            // Petición al backend
+            const response = await fetch('/api/ai-analysis');
+            const data = await response.json();
+
+            if (data.success) {
+              // Mostrar resultado
+              output.innerHTML = "<strong>📊 INFORME GALPE:</strong><br><br>" + data.analysis;
+            } else {
+              output.innerHTML = "❌ Error: " + data.error;
+            }
+          } catch (error) {
+            output.innerHTML = "❌ Error de conexión. Inténtalo de nuevo.";
+          } finally {
+            // Restaurar botón
+            btn.disabled = false;
+            btn.innerHTML = "⚡ Analizar Mercado Ahora";
+            btn.style.opacity = "1";
+          }
+        }
+      </script>
+
+</body>
+
+</html>

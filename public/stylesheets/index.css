@@ -1,0 +1,161 @@
+/* Homepage styles */
+body {
+    background: #000;
+    color: #fff;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 100px 0 80px;
+    text-align: center;
+    background: radial-gradient(circle at center top, rgba(255, 153, 0, 0.1) 0%, transparent 50%);
+}
+
+.hero-title {
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 40px;
+}
+
+.highlight {
+    color: var(--primary-color);
+}
+
+/* Crypto Table Section */
+.crypto-table-section {
+    padding: 60px 0;
+}
+
+.crypto-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.crypto-table thead {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.crypto-table th {
+    text-align: left;
+    padding: 20px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.crypto-table td {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    font-size: 16px;
+}
+
+.crypto-table tbody tr {
+    transition: background 0.2s;
+}
+
+.crypto-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.coin-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 600;
+}
+
+.coin-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coin-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.price-cell {
+    font-weight: 600;
+    font-size: 17px;
+}
+
+.text-green {
+    color: #00ff88;
+    font-weight: 600;
+}
+
+.text-red {
+    color: #ff4d4d;
+    font-weight: 600;
+}
+
+.btn-trade {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 15px;
+    transition: opacity 0.2s;
+    text-decoration: underline;
+}
+
+.btn-trade:hover {
+    opacity: 0.8;
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 100px 0;
+    text-align: center;
+    background: radial-gradient(circle at center, rgba(255, 153, 0, 0.05) 0%, transparent 60%);
+}
+
+.cta-title {
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 36px;
+    }
+
+    .cta-title {
+        font-size: 28px;
+    }
+
+    .crypto-table th,
+    .crypto-table td {
+        padding: 16px;
+        font-size: 14px;
+    }
+
+    .coin-icon {
+        width: 28px;
+        height: 28px;
+    }
+}

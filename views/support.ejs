@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/support.css' />
+</head>
+
+<body class="support-page">
+    <!-- Background Image -->
+    <div class="background-image"></div>
+
+    <%- include('partials/header') %>
+
+        <div class="hero-support">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="container" style="position: relative; z-index: 1;">
+                <h1>Centro de ayuda</h1>
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Buscar">
+                </div>
+            </div>
+        </div>
+
+        <div class="support-content">
+            <div class="container">
+                <h2 class="section-title">Autoservicio</h2>
+
+                <div class="autoservice-carousel-wrapper">
+                    <button class="carousel-arrow carousel-arrow-left" aria-label="Anterior">‹</button>
+                    <div class="autoservice-grid">
+                        <div class="service-card"><span class="service-icon">🔐</span> Restablecer 2FA</div>
+                        <div class="service-card"><span class="service-icon">🔑</span> Restablecer contraseña</div>
+                        <a href="/support/change-email" class="service-card"
+                            style="text-decoration: none; color: inherit;"><span class="service-icon">✉️</span>
+                            Cambiar/Desvincular correo electrónico</a>
+                        <div class="service-card"><span class="service-icon">📱</span> Cambiar/Desvincular número de
+                            teléfono</div>
+                        <a href="/support/reset-password" class="service-card"
+                            style="text-decoration: none; color: inherit;"><span class="service-icon">🛡️</span> Cambiar
+                            contraseña de inicio de sesión</a>
+                        <div class="service-card"><span class="service-icon">🔒</span> Congelar cuenta</div>
+                    </div>
+                    <button class="carousel-arrow carousel-arrow-right" aria-label="Siguiente">›</button>
+                </div>
+                <div class="carousel-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title" style="margin-bottom: 0;">Preguntas frecuentes</h2>
+                    <a href="#" style="color: #888; font-size: 14px;">Ver más →</a>
+                </div>
+                <a href="#"
+                    style="margin-bottom: 30px; font-size: 14px; font-weight: 600; color: #000; text-decoration: none; display: inline-block;">Enviar
+                    una solicitud ></a>
+
+                <div class="faq-grid">
+                    <div class="faq-card">
+                        <h3>Comprar criptomonedas</h3>
+                        <ul class="faq-list">
+                            <li>1. Comience con Fast trader</li>
+                            <li>2. Tarjeta de crédito/débito</li>
+                            <li>3. Revolut Pay</li>
+                        </ul>
+                    </div>
+                    <div class="faq-card">
+                        <h3>Impuestos</h3>
+                        <ul class="faq-list">
+                            <li>1. España</li>
+                            <li>2. Estados Unidos</li>
+                            <li>3. Suiza</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="faq-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                </div>
+
+                <div class="contact-banner">
+                    <h2>¿Aún tienes problemas?</h2>
+                    <p>Brindamos servicio al cliente 24/7 que siempre satisface sus necesidades.</p>
+                    <a href="/contact" class="btn btn-primary" style="background: #000; color: #fff;">Contáctenos →</a>
+                </div>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+
+</body>
+
+</html>

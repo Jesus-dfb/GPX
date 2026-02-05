@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/support.css' />
+</head>
+
+<body class="support-page">
+    <%- include('partials/header') %>
+
+        <div class="contact-form-container">
+            <div class="container">
+                <h1 class="contact-title">Cambiar correo electrónico</h1>
+                <p class="contact-description">Introduce tu correo electrónico actual y el nuevo correo al que deseas
+                    cambiar tu cuenta.</p>
+
+                <% if (typeof error !=='undefined' && error) { %>
+                    <div class="error-message"
+                        style="background: #ffebee; color: #c62828; padding: 12px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #c62828;">
+                        <%= error %>
+                    </div>
+                    <% } %>
+
+                        <% if (typeof success !=='undefined' && success) { %>
+                            <div class="success-message"
+                                style="background: #e8f5e9; color: #2e7d32; padding: 12px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #2e7d32;">
+                                <%= success %>
+                            </div>
+                            <% } %>
+
+                                <form class="contact-form" action="/support/change-email" method="POST">
+                                    <div class="form-group">
+                                        <label for="currentEmail" class="form-label">Correo electrónico actual:</label>
+                                        <input type="email" id="currentEmail" name="currentEmail" class="form-input"
+                                            placeholder="correo@example.com" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="newEmail" class="form-label">Nuevo correo electrónico:</label>
+                                        <input type="email" id="newEmail" name="newEmail" class="form-input"
+                                            placeholder="nuevo@example.com" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="password" class="form-label">Contraseña:</label>
+                                        <input type="password" id="password" name="password" class="form-input"
+                                            placeholder="Introduce tu contraseña para confirmar" required>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-submit">Cambiar correo electrónico</button>
+                                </form>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+
+</body>
+
+</html>

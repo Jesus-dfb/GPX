@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/dashboard.css' />
+    <link rel='stylesheet' href='/stylesheets/deposit.css' />
+</head>
+
+<body>
+    <video autoplay muted loop class="video-background">
+        <source src="/images/FondoPagina.mp4" type="video/mp4">
+        Tu navegador no soporta el video de fondo.
+    </video>
+
+    <%- include('partials/header') %>
+
+        <div class="page-container">
+            <h1 class="page-title">Retirar fondos</h1>
+
+            <% if (typeof error !=='undefined' && error) { %>
+                <div class="alert alert-error">
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <% if (typeof success !=='undefined' && success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                        <% } %>
+
+                            <div class="card">
+                                <div class="balance-info">
+                                    <div>
+                                        <span>Saldo EUR</span>
+                                        <strong>
+                                            <%= user.balance?.eur?.toFixed(2) || '0.00' %> €
+                                        </strong>
+                                    </div>
+                                    <div>
+                                        <span>Saldo BTC</span>
+                                        <strong>
+                                            <%= user.balance?.btc || 0 %> BTC
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <form method="POST" action="/withdraw" class="deposit-form">
+                                    <div class="form-group">
+                                        <label>Cantidad</label>
+                                        <input type="text" name="amount" placeholder="Ej: 50" required />
+                                        <div class="help-text">Se aplicará una comisión .</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Moneda</label>
+                                        <select name="currency">
+                                            <option value="eur">EUR</option>
+                                            <option value="btc">BTC</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Destino (IBAN / Wallet)</label>
+                                        <input type="text" name="destination" placeholder="Ej: ES12 3456... / bc1q..."
+                                            required />
+                                        <div class="help-text">No se valida como un banco.
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary full-width">Retirar</button>
+                                </form>
+                            </div>
+
+                            <div class="card" style="margin-top: 18px;">
+                                <h2 style="margin: 0 0 14px 0;">Historial de retiros</h2>
+
+                                <% if (!history || history.length===0) { %>
+                                    <p style="color:#9a9a9a; margin:0;">Aún no hay retiros registrados.</p>
+                                    <% } else { %>
+                                        <div style="overflow-x:auto;">
+                                            <table class="history-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fecha</th>
+                                                        <th>Cantidad</th>
+                                                        <th>Comisión</th>
+                                                        <th>Moneda</th>
+                                                        <th>Destino</th>
+                                                        <th>Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% history.forEach(m=> { %>
+                                                        <tr>
+                                                            <td>
+                                                                <%= new Date(m.createdAt).toLocaleString() %>
+                                                            </td>
+                                                            <td>
+                                                                <%= (m.currency==='btc' ? Number(m.amount).toFixed(8) :
+                                                                    Number(m.amount).toFixed(2)) %>
+                                                            </td>
+                                                            <td>
+                                                                <%= (m.currency==='btc' ? Number(m.fee).toFixed(8) :
+                                                                    Number(m.fee).toFixed(2)) %>
+                                                            </td>
+                                                            <td>
+                                                                <%= String(m.currency || '' ).toUpperCase() %>
+                                                            </td>
+                                                            <td title="<%= m.destination %>">
+                                                                <%= m.destination.length> 16 ? (m.destination.slice(0,
+                                                                    16) + '…') : m.destination %>
+                                                            </td>
+                                                            <td>
+                                                                <%= m.status || 'completed' %>
+                                                            </td>
+                                                        </tr>
+                                                        <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <% } %>
+                            </div>
+        </div>
+
+
+        <%- include('partials/footer') %>
+</body>
+
+</html>

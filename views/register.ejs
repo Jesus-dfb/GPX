@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/auth.css' />
+</head>
+
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="background-video">
+        <source src="/images/FondoCrearCuenta.mp4" type="video/mp4">
+    </video>
+
+    <%- include('partials/header') %>
+
+        <div class="auth-container">
+            <div class="auth-box">
+                <h2>Crear Cuenta</h2>
+
+                <% if (locals.error) { %>
+                    <div class="error-message">
+                        <%= error %>
+                    </div>
+                    <% } %>
+
+                        <form action="/auth/register" method="POST">
+                            <div class="form-group">
+                                <label>Nombre completo</label>
+                                <input type="text" name="name" placeholder="Juan Pérez" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Correo electrónico</label>
+                                <input type="email" name="email" placeholder="nombre@ejemplo.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Contraseña</label>
+                                <input type="password" name="password" placeholder="••••••••" required minlength="6">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Registrarse</button>
+                        </form>
+                        <p>
+                            ¿Ya tienes cuenta? <a href="/login">Inicia Sesión</a>
+                        </p>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+</body>
+
+</html>

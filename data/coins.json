@@ -1,0 +1,66 @@
+[
+    {
+        "id": "bitcoin",
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "price_eur": 97959.34,
+        "change_24h": 2.89,
+        "icon_color": "orange"
+    },
+    {
+        "id": "ethereum",
+        "symbol": "ETH",
+        "name": "Ethereum",
+        "price_eur": 3521.97,
+        "change_24h": 0.95,
+        "icon_color": "#627eea"
+    },
+    {
+        "id": "ripple",
+        "symbol": "XRP",
+        "name": "XRP",
+        "price_eur": 2.27,
+        "change_24h": -1.78,
+        "icon_color": "#fff"
+    },
+    {
+        "id": "solana",
+        "symbol": "SOL",
+        "name": "Solana",
+        "price_eur": 170.30,
+        "change_24h": -0.08,
+        "icon_color": "#9945ff"
+    },
+    {
+        "id": "binancecoin",
+        "symbol": "BNB",
+        "name": "BNB",
+        "price_eur": 1600.27,
+        "change_24h": -1.78,
+        "icon_color": "#f3ba2f"
+    },
+    {
+        "id": "cardano",
+        "symbol": "ADA",
+        "name": "Cardano",
+        "price_eur": 0.55,
+        "change_24h": 4.92,
+        "icon_color": "#0033ad"
+    },
+    {
+        "id": "rwa",
+        "symbol": "RWA",
+        "name": "RWA",
+        "price_eur": 10.50,
+        "change_24h": 2.92,
+        "icon_color": "#5a5a5a"
+    },
+    {
+        "id": "depin",
+        "symbol": "DEPIN",
+        "name": "DePin",
+        "price_eur": 5.20,
+        "change_24h": 2.31,
+        "icon_color": "#0000ff"
+    }
+]

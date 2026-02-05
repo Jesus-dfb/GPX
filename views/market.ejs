@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/market.css' />
+</head>
+
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="background-video">
+        <source src="/images/FondoPagina.mp4" type="video/mp4">
+    </video>
+
+    <%- include('partials/header') %>
+
+        <!-- Market Section - Same structure as homepage -->
+        <section class="market-section">
+            <div class="container">
+                <div class="market-header">
+                    <h2>Mercado</h2>
+                </div>
+
+                <!-- Main Price List -->
+                <table class="assets-table">
+                    <thead>
+                        <tr>
+                            <th>Mercado</th>
+                            <th>Precio de la moneda</th>
+                            <th>Cambio en 24h</th>
+                            <th>Operar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (locals.coins && coins.length> 0) { %>
+                            <% coins.forEach(function(coin) { %>
+                                <tr class="clickable-row" data-href="/trade/<%= coin.symbol %>">
+                                    <td>
+                                        <div class="coin-info">
+                                            <%- include('partials/coin-icon', { symbol: coin.symbol }) %>
+                                            <%= coin.name %>
+                                        </div>
+                                    </td>
+                                    <td class="price-cell">
+                                        <%= coin.price_eur %> €
+                                    </td>
+                                    <td class="<%= coin.change_24h >= 0 ? 'text-green' : 'text-red' %>">
+                                        <%= coin.change_24h>= 0 ? '+' : '' %><%= coin.change_24h %> %
+                                    </td>
+                                    <td>
+                                        <% if (locals.user) { %>
+                                            <a href="/trade/<%= coin.symbol %>" class="btn-trade"
+                                                onclick="event.stopPropagation();">Operar</a>
+                                            <% } else { %>
+                                                <a href="/login" class="btn-trade"
+                                                    onclick="event.stopPropagation();">Operar</a>
+                                                <% } %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="4" class="empty-state">No hay datos de mercado disponibles.
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+
+                <!-- Gainers and Losers -->
+                <div class="market-stats-grid">
+                    <!-- Top Gainers -->
+                    <div class="stat-card">
+                        <h3>Más crecimiento</h3>
+                        <% if (locals.gainers && gainers.length> 0) { %>
+                            <% gainers.forEach(function(coin) { %>
+                                <a href="<%= locals.user ? '/trade/' + coin.symbol : '/login' %>"
+                                    class="stat-row clickable-stat">
+                                    <div class="coin-info">
+                                        <%- include('partials/coin-icon', { symbol: coin.symbol }) %>
+                                        <%= coin.name %>
+                                    </div>
+                                    <div class="text-green">+<%= coin.change_24h %> %</div>
+                                </a>
+                                <% }); %>
+                                    <% } else { %>
+                                        <div class="empty-state">No hay datos.</div>
+                                        <% } %>
+                    </div>
+
+                    <!-- Top Losers -->
+                    <div class="stat-card">
+                        <h3>Más caída</h3>
+                        <% if (locals.losers && losers.length> 0) { %>
+                            <% losers.forEach(function(coin) { %>
+                                <a href="<%= locals.user ? '/trade/' + coin.symbol : '/login' %>"
+                                    class="stat-row clickable-stat">
+                                    <div class="coin-info">
+                                        <%- include('partials/coin-icon', { symbol: coin.symbol }) %>
+                                        <%= coin.name %>
+                                    </div>
+                                    <div class="text-red">
+                                        <%= coin.change_24h %> %
+                                    </div>
+                                </a>
+                                <% }); %>
+                                    <% } else { %>
+                                        <div class="empty-state">No hay datos.</div>
+                                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <%- include('partials/footer') %>
+
+            <script>
+
+                // Make table rows clickable
+                document.querySelectorAll('.clickable-row').forEach(row => {
+                    row.addEventListener('click', function () {
+                        const href = this.dataset.href;
+                        if (href) {
+                            window.location.href = href;
+                        }
+                    });
+                });
+            </script>
+
+</body>
+
+</html>

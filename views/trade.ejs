@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/trade.css' />
+</head>
+
+<body class="trade-page">
+
+    <%- include('partials/header') %>
+
+        <div class="trade-container">
+
+            <!-- Sidebar with trading pairs -->
+            <aside class="trading-pairs-sidebar">
+                <div class="sidebar-header">
+                    <h3>Pares de Trading</h3>
+                </div>
+                <div class="pairs-list">
+                    <% coins.forEach(function(c) { %>
+                        <a href="/trade/<%= c.symbol %>"
+                            class="pair-item <%= c.symbol === coin.symbol ? 'active' : '' %>">
+                            <div class="pair-info">
+                                <span class="pair-name">
+                                    <%= c.symbol %>/USDT
+                                </span>
+                                <span class="pair-price">
+                                    <%= c.price_eur %> €
+                                </span>
+                            </div>
+                            <span class="pair-change <%= c.change_24h >= 0 ? 'positive' : 'negative' %>">
+                                <%= c.change_24h>= 0 ? '+' : '' %><%= c.change_24h %>%
+                            </span>
+                        </a>
+                        <% }); %>
+                </div>
+            </aside>
+
+            <!-- Main trading area -->
+            <main class="trading-main">
+
+                <!-- Coin header -->
+                <div class="coin-header">
+                    <div class="coin-title">
+                        <%- include('partials/coin-icon', { symbol: coin.symbol }) %>
+                        <div>
+                            <h1>
+                                <%= coin.symbol %>/USDT
+                            </h1>
+                            <p class="coin-name-full">
+                                <%= coin.name %>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="coin-stats">
+                        <div class="stat">
+                            <span class="stat-label">Precio</span>
+                            <span class="stat-value price-large">
+                                <%= coin.price_eur %> €
+                            </span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Cambio 24h</span>
+                            <span class="stat-value <%= coin.change_24h >= 0 ? 'positive' : 'negative' %>">
+                                <%= coin.change_24h>= 0 ? '+' : '' %><%= coin.change_24h %>%
+                            </span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Máximo 24h</span>
+                            <span class="stat-value">
+                                <%= (coin.price_eur * 1.05).toFixed(2) %> €
+                            </span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Mínimo 24h</span>
+                            <span class="stat-value">
+                                <%= (coin.price_eur * 0.95).toFixed(2) %> €
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart area -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-tabs">
+                            <button class="chart-tab active">Gráfico</button>
+                            <button class="chart-tab">Datos de trading</button>
+                        </div>
+                        <div class="chart-timeframes">
+                            <button class="timeframe-btn">1m</button>
+                            <button class="timeframe-btn">5m</button>
+                            <button class="timeframe-btn">15m</button>
+                            <button class="timeframe-btn active">1h</button>
+                            <button class="timeframe-btn">4h</button>
+                            <button class="timeframe-btn">1d</button>
+                        </div>
+                    </div>
+                    <div class="chart-canvas-wrapper">
+                        <canvas id="priceChart" width="800" height="400"></canvas>
+                    </div>
+                </div>
+
+                <!-- Trading form -->
+                <div class="trading-form-section">
+                    <div class="trading-tabs">
+                        <button class="trading-tab active" data-type="buy">Comprar</button>
+                        <button class="trading-tab" data-type="sell">Vender</button>
+                    </div>
+
+                    <form class="trading-form" id="buyForm">
+                        <div class="form-row">
+                            <label>Precio</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" value="<%= coin.price_eur %>" id="buyPrice">
+                                <span class="input-suffix">USDT</span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label>Cantidad</label>
+                            <div class="input-group">
+                                <input type="number" step="0.00000001" placeholder="0.00" id="buyAmount">
+                                <span class="input-suffix">
+                                    <%= coin.symbol %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="percentage-buttons">
+                            <button type="button" class="percent-btn" data-percent="25">25%</button>
+                            <button type="button" class="percent-btn" data-percent="50">50%</button>
+                            <button type="button" class="percent-btn" data-percent="75">75%</button>
+                            <button type="button" class="percent-btn" data-percent="100">100%</button>
+                        </div>
+
+                        <div class="form-row">
+                            <label>Total</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" placeholder="0.00" id="buyTotal" readonly>
+                                <span class="input-suffix">USDT</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-trade-submit btn-buy">Comprar <%= coin.symbol %></button>
+                    </form>
+
+                    <form class="trading-form hidden" id="sellForm">
+                        <div class="form-row">
+                            <label>Precio</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" value="<%= coin.price_eur %>" id="sellPrice">
+                                <span class="input-suffix">USDT</span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <label>Cantidad</label>
+                            <div class="input-group">
+                                <input type="number" step="0.00000001" placeholder="0.00" id="sellAmount">
+                                <span class="input-suffix">
+                                    <%= coin.symbol %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="percentage-buttons">
+                            <button type="button" class="percent-btn" data-percent="25">25%</button>
+                            <button type="button" class="percent-btn" data-percent="50">50%</button>
+                            <button type="button" class="percent-btn" data-percent="75">75%</button>
+                            <button type="button" class="percent-btn" data-percent="100">100%</button>
+                        </div>
+
+                        <div class="form-row">
+                            <label>Total</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" placeholder="0.00" id="sellTotal" readonly>
+                                <span class="input-suffix">USDT</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-trade-submit btn-sell">Vender <%= coin.symbol %></button>
+                    </form>
+                </div>
+
+            </main>
+
+            <!-- Order book sidebar -->
+            <aside class="orderbook-sidebar">
+                <div class="orderbook-header">
+                    <h3>Libro de órdenes</h3>
+                </div>
+                <div class="orderbook-content">
+                    <div class="orderbook-headers">
+                        <span>Precio (USDT)</span>
+                        <span>Cantidad (<%= coin.symbol %>)</span>
+                        <span>Total</span>
+                    </div>
+
+                    <!-- Sell orders (asks) -->
+                    <div class="orderbook-sells">
+                        <% for(let i=0; i < 10; i++) { const price=(coin.price_eur * (1 + (i * 0.001))).toFixed(2);
+                            const amount=(Math.random() * 2).toFixed(4); const total=(price * amount).toFixed(2); %>
+                            <div class="order-row sell-order">
+                                <span class="order-price negative">
+                                    <%= price %>
+                                </span>
+                                <span class="order-amount">
+                                    <%= amount %>
+                                </span>
+                                <span class="order-total">
+                                    <%= total %>
+                                </span>
+                            </div>
+                            <% } %>
+                    </div>
+
+                    <!-- Current price -->
+                    <div class="current-price-row">
+                        <span class="current-price <%= coin.change_24h >= 0 ? 'positive' : 'negative' %>">
+                            <%= coin.price_eur %> €
+                        </span>
+                    </div>
+
+                    <!-- Buy orders (bids) -->
+                    <div class="orderbook-buys">
+                        <% for(let i=0; i < 10; i++) { const price=(coin.price_eur * (1 - (i * 0.001))).toFixed(2);
+                            const amount=(Math.random() * 2).toFixed(4); const total=(price * amount).toFixed(2); %>
+                            <div class="order-row buy-order">
+                                <span class="order-price positive">
+                                    <%= price %>
+                                </span>
+                                <span class="order-amount">
+                                    <%= amount %>
+                                </span>
+                                <span class="order-total">
+                                    <%= total %>
+                                </span>
+                            </div>
+                            <% } %>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+
+
+            // Trading form tabs
+            document.querySelectorAll('.trading-tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('.trading-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const type = this.dataset.type;
+                    document.getElementById('buyForm').classList.toggle('hidden', type !== 'buy');
+                    document.getElementById('sellForm').classList.toggle('hidden', type !== 'sell');
+                });
+            });
+
+            // Calculate total on amount change
+            function calculateTotal(priceId, amountId, totalId) {
+                const price = parseFloat(document.getElementById(priceId).value) || 0;
+                const amount = parseFloat(document.getElementById(amountId).value) || 0;
+                document.getElementById(totalId).value = (price * amount).toFixed(2);
+            }
+
+            document.getElementById('buyPrice').addEventListener('input', () => calculateTotal('buyPrice', 'buyAmount', 'buyTotal'));
+            document.getElementById('buyAmount').addEventListener('input', () => calculateTotal('buyPrice', 'buyAmount', 'buyTotal'));
+            document.getElementById('sellPrice').addEventListener('input', () => calculateTotal('sellPrice', 'sellAmount', 'sellTotal'));
+            document.getElementById('sellAmount').addEventListener('input', () => calculateTotal('sellPrice', 'sellAmount', 'sellTotal'));
+
+            // Simple chart drawing
+            const canvas = document.getElementById('priceChart');
+            const ctx = canvas.getContext('2d');
+            const basePrice = parseFloat('<%= coin.price_eur %>'.replace(/,/g, ''));
+
+            // Generate random price data
+            const dataPoints = 50;
+            const prices = [];
+            for (let i = 0; i < dataPoints; i++) {
+                const variation = (Math.random() - 0.5) * basePrice * 0.1;
+                prices.push(basePrice + variation);
+            }
+
+            // Draw chart
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const maxPrice = Math.max(...prices);
+            const minPrice = Math.min(...prices);
+            const priceRange = maxPrice - minPrice;
+            const xStep = canvas.width / (dataPoints - 1);
+
+            // Draw price line
+            ctx.beginPath();
+            ctx.strokeStyle = '<%= coin.change_24h >= 0 ? "#00ff88" : "#ff4d4d" %>';
+            ctx.lineWidth = 2;
+
+            prices.forEach((price, i) => {
+                const x = i * xStep;
+                const y = canvas.height - ((price - minPrice) / priceRange) * canvas.height;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            // Draw area under line
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.closePath();
+            ctx.fillStyle = '<%= coin.change_24h >= 0 ? "rgba(0, 255, 136, 0.1)" : "rgba(255, 77, 77, 0.1)" %>';
+            ctx.fill();
+        </script>
+
+</body>
+
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/dashboard.css' />
+</head>
+
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="background-video">
+        <source src="/images/FondoPagina.mp4" type="video/mp4">
+    </video>
+
+    <%- include('partials/header') %>
+
+        <div class="container dashboard-container">
+
+            <div class="balance-card">
+                <div class="balance-info">
+                    <h2>Tu balance 👁️</h2>
+                    <% if (locals.user && user.balance) { %>
+                        <div class="balance-amount">
+                            <%= user.balance.btc %> BTC ⌄
+                        </div>
+                        <div class="balance-fiat">
+                            <%= user.balance.eur %> €
+                        </div>
+                        <% } else { %>
+                            <div class="balance-amount">
+                                0.00000000 BTC ⌄
+                            </div>
+                            <div class="balance-fiat">
+                                0.00 €
+                            </div>
+                            <% } %>
+                </div>
+                <div class="action-buttons">
+                    <a href="/deposit" class="btn btn-action primary">Depositar</a>
+                    <a href="/withdraw" class="btn btn-action">Retirar</a>
+                </div>
+            </div>
+
+            <!-- Chart placeholder line -->
+            <div class="chart-placeholder">
+                <svg width="100%" height="50">
+                    <path d="M0,50 Q100,20 200,40 T400,30 T600,45 T800,10 T1000,30 T1200,50" fill="none"
+                        stroke="#ff9900" stroke-width="2" />
+                </svg>
+            </div>
+
+            <h3 class="section-title">Mis activos</h3>
+
+            <table class="assets-table">
+                <thead>
+                    <tr>
+                        <th>Mis activos</th>
+                        <th>Precio de la moneda</th>
+                        <th>Cambio en 24h</th>
+                        <th>Operar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (locals.assets && assets.length> 0) { %>
+                        <% assets.forEach(function(asset) { %>
+                            <tr>
+                                <td>
+                                    <div class="coin-name">
+                                        <%- include('partials/coin-icon', { symbol: asset.symbol }) %>
+                                            <%= asset.name %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <%= asset.price_eur %> €
+                                </td>
+                                <td class="<%= asset.change_24h >= 0 ? 'text-green' : 'text-red' %>">
+                                    <%= asset.change_24h>= 0 ? '+' : '' %><%= asset.change_24h %> %
+                                </td>
+                                <td><a href="#" class="text-primary">Operar</a></td>
+                            </tr>
+                            <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="4" class="empty-state">No tienes activos.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="news-grid">
+                <div class="news-card">
+                    <div class="news-meta">Hace 10 minutos</div>
+                    <div class="news-title">SoFi Technologies eleva su previsión...</div>
+                    <div class="news-excerpt">Según BlockBeats, SoFi Technologies ha aumentado su previsión de
+                        beneficios anuales...</div>
+                </div>
+                <div class="news-card">
+                    <div class="news-meta">Hace 18 minutos</div>
+                    <div class="news-title">SharpLink invertirá $200 millones en ETH...</div>
+                    <div class="news-excerpt">Según PANews, SharpLink ha anunciado una colaboración con ether.fi...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <%- include('partials/footer') %>
+
+
+</body>
+
+</html>

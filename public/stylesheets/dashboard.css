@@ -1,0 +1,279 @@
+/* Dashboard specific styles */
+body {
+    position: relative;
+    overflow-x: hidden;
+}
+
+.background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+.dashboard-header {
+    background: radial-gradient(circle at top, #1a1a1a 0%, #000 100%);
+    padding: 40px 0;
+}
+
+.dashboard-container {
+    padding-top: 50px;
+    /* Aumentado de 40px */
+    padding-bottom: 80px;
+    /* Aumentado de 60px */
+}
+
+.balance-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 50px;
+    /* Aumentado de 40px */
+    padding: 40px;
+    /* Añadido padding interno */
+    background: rgba(255, 255, 255, 0.02);
+    /* Añadido fondo sutil */
+    border-radius: 16px;
+    /* Añadido bordes redondeados */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Añadido borde sutil */
+}
+
+.balance-info h2 {
+    font-size: 18px;
+    /* Reducido de 24px para mejor jerarquía */
+    margin-bottom: 16px;
+    /* Aumentado de 10px */
+    color: #999;
+    font-weight: 500;
+}
+
+.balance-amount {
+    font-size: 42px;
+    /* Aumentado de 36px */
+    font-weight: 700;
+    margin-bottom: 8px;
+    /* Aumentado de 5px */
+    letter-spacing: -0.5px;
+    /* Añadido para mejor legibilidad */
+}
+
+.balance-fiat {
+    color: #888;
+    font-size: 20px;
+    /* Aumentado de 18px */
+    font-weight: 500;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    /* Aumentado de 15px */
+}
+
+.btn-action {
+    background: #333;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 12px 28px;
+    /* Aumentado de 8px 20px */
+    border-radius: 8px;
+    /* Aumentado de 6px */
+    font-size: 15px;
+    /* Añadido */
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    background: rgba(255, 153, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.btn-action.primary {
+    background: var(--primary-color);
+    color: #000;
+}
+
+.btn-action.primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+}
+
+.chart-placeholder {
+    height: 80px;
+    /* Aumentado de 50px */
+    border-bottom: 1px solid #333;
+    margin-bottom: 50px;
+    /* Aumentado de 40px */
+    position: relative;
+    padding: 20px 0;
+    /* Añadido padding */
+}
+
+.chart-placeholder svg {
+    position: absolute;
+    bottom: 0;
+}
+
+.section-title {
+    margin-bottom: 28px;
+    /* Aumentado de 20px */
+    font-size: 24px;
+    /* Añadido */
+    font-weight: 600;
+}
+
+.assets-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.01);
+    /* Añadido fondo sutil */
+    border-radius: 12px;
+    /* Añadido */
+    overflow: hidden;
+    /* Para que el border-radius funcione */
+}
+
+.assets-table th {
+    text-align: left;
+    padding: 20px;
+    /* Aumentado de 15px */
+    color: #888;
+    font-weight: 600;
+    /* Aumentado de 500 */
+    font-size: 13px;
+    /* Añadido */
+    text-transform: uppercase;
+    /* Añadido */
+    letter-spacing: 0.5px;
+    /* Añadido */
+    border-bottom: 1px solid #222;
+    background: rgba(255, 255, 255, 0.02);
+    /* Añadido */
+}
+
+.assets-table td {
+    padding: 20px;
+    /* Aumentado de 15px */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    /* Más sutil */
+    font-size: 15px;
+    /* Añadido */
+}
+
+.assets-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+    /* Añadido efecto hover */
+}
+
+.coin-name {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    /* Aumentado de 10px */
+    font-weight: 600;
+}
+
+.coin-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coin-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.text-green {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.text-red {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+.text-primary {
+    color: var(--primary-color);
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.text-primary:hover {
+    opacity: 0.8;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    /* Aumentado de 20px */
+    color: #666;
+    font-size: 15px;
+    /* Añadido */
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    /* Aumentado de 300px */
+    gap: 28px;
+    /* Aumentado de 20px */
+    margin-top: 60px;
+    /* Aumentado de 40px */
+}
+
+.news-card {
+    background: rgba(255, 255, 255, 0.03);
+    /* Más visible */
+    padding: 28px;
+    /* Aumentado de 20px */
+    border-radius: 16px;
+    /* Aumentado de 12px */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Más visible */
+    transition: all 0.2s;
+}
+
+.news-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.news-meta {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+    /* Aumentado de 10px */
+    text-transform: uppercase;
+    /* Añadido */
+    letter-spacing: 0.5px;
+    /* Añadido */
+}
+
+.news-title {
+    font-size: 17px;
+    /* Aumentado de 16px */
+    font-weight: 600;
+    margin-bottom: 12px;
+    /* Aumentado de 10px */
+    line-height: 1.4;
+    /* Añadido */
+}
+
+.news-excerpt {
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.6;
+    /* Añadido */
+}
