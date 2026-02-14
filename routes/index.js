@@ -24,6 +24,8 @@ const axios = require('axios');
 const {
   GoogleGenerativeAI
 } = require("@google/generative-ai");
+const CoinMarketCapService = require('../services/coinmarketcap');
+const EmailService = require('../services/email');
 // ---------------------
 
 
@@ -37,12 +39,52 @@ if (!process.env.GEMINI_API_KEY) {
 } else {
   console.log("✅ API Key detectada.");
 }
+if (!process.env.COINMARKETCAP_API_KEY) {
+  console.log("⚠️  ADVERTENCIA: No veo la COINMARKETCAP_API_KEY - Los precios no se actualizarán desde la API");
+} else {
+  console.log("✅ CoinMarketCap API Key detectada.");
+}
 console.log("---------------------------------------");
 
-/* GET home page. */
-router.get('/', function (req, res, next) {
+// --- HELPER: Actualizar precios desde CoinMarketCap ---
+/**
+ * Actualiza los precios de las criptomonedas desde CoinMarketCap API
+ * Si falla, devuelve las monedas sin actualizar
+ * @returns {Promise<Array>} Array de monedas (actualizadas o sin actualizar)
+ */
+async function updatePricesFromAPI() {
+  // Si no hay API key, simplemente devolver las monedas existentes
+  if (!process.env.COINMARKETCAP_API_KEY) {
+    return monedaDao.getAll();
+  }
+
   try {
+    const cmcService = new CoinMarketCapService();
     const coins = monedaDao.getAll();
+    const symbols = coins.map(c => c.symbol);
+    const prices = await cmcService.getMultiplePrices(symbols);
+
+    // Actualizar precios en la base de datos para las monedas disponibles
+    for (const coin of coins) {
+      if (cmcService.isAvailable(coin.symbol) && prices.has(coin.symbol)) {
+        const priceData = prices.get(coin.symbol);
+        monedaDao.updatePrice(coin.symbol, priceData.priceEur, priceData.change24h);
+      }
+    }
+
+    // Recargar monedas con precios actualizados
+    return monedaDao.getAll();
+  } catch (error) {
+    // Si falla la API, devolver las monedas existentes
+    console.warn('No se pudieron actualizar precios desde CoinMarketCap:', error.message);
+    return monedaDao.getAll();
+  }
+}
+
+/* GET home page. */
+router.get('/', async function (req, res, next) {
+  try {
+    const coins = await updatePricesFromAPI();
     res.render('index', {
       title: 'Galpe Exchange',
       coins: coins
@@ -57,13 +99,56 @@ router.get('/support', function (req, res, next) {
 });
 
 router.get('/contact', function (req, res, next) {
-  res.render('contact', { title: 'Soporte técnico - Galpe Exchange' });
+  const sent = req.query.sent === 'true';
+  res.render('contact', { 
+    title: 'Soporte técnico - Galpe Exchange',
+    sent: sent
+  });
 });
 
-router.post('/support/contact', function (req, res, next) {
-  // Aquí puedes agregar la lógica para procesar el formulario
-  // Por ahora, solo redirigimos de vuelta con un mensaje
-  res.redirect('/contact?sent=true');
+router.post('/support/contact', async function (req, res, next) {
+  try {
+    const { name, email, message } = req.body;
+
+    // Validar campos requeridos
+    if (!name || !email || !message) {
+      return res.render('contact', {
+        title: 'Soporte técnico - Galpe Exchange',
+        sent: false,
+        error: 'Por favor, completa todos los campos'
+      });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.render('contact', {
+        title: 'Soporte técnico - Galpe Exchange',
+        sent: false,
+        error: 'Por favor, introduce un email válido'
+      });
+    }
+
+    // Intentar enviar el correo
+    const emailService = new EmailService();
+    const emailResult = await emailService.sendContactEmail(name, email, message);
+
+    if (!emailResult.success) {
+      // Si el email no está configurado, aún mostramos éxito pero con advertencia
+      console.warn('⚠️  Email no enviado:', emailResult.message);
+      // Continuamos como si fuera exitoso para no confundir al usuario
+    }
+
+    // Redirigir con mensaje de éxito
+    res.redirect('/contact?sent=true');
+  } catch (error) {
+    console.error('Error al procesar formulario de contacto:', error);
+    res.render('contact', {
+      title: 'Soporte técnico - Galpe Exchange',
+      sent: false,
+      error: 'Ocurrió un error al enviar el mensaje. Por favor, intenta de nuevo.'
+    });
+  }
 });
 
 // Rutas protegidas - requieren autenticación
@@ -109,9 +194,11 @@ router.get('/dashboard', requireAuth, function (req, res, next) {
   }
 });
 
-router.get('/market', function (req, res, next) {
+router.get('/market', async function (req, res, next) {
   try {
-    const coins = monedaDao.getAll();
+    // Actualizar precios desde CoinMarketCap
+    const coins = await updatePricesFromAPI();
+
     // Sort for gainers/losers
     const sortedByChange = [...coins].sort((a, b) => b.change_24h - a.change_24h);
     const gainers = sortedByChange.slice(0, 4);

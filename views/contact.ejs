@@ -24,6 +24,12 @@
                     ¡Gracias! Hemos recibido tu mensaje correctamente.
                 </div>
             <% } %>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div style="background-color: #f8d7da; color: #721c24; padding: 15px; margin-bottom: 20px; border: 1px solid #f5c6cb; border-radius: 4px;">
+                    <%= error %>
+                </div>
+            <% } %>
 
             <form class="contact-form" action="/support/contact" method="POST">
                 <div class="form-group">
