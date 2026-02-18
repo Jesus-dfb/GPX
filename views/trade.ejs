@@ -7,6 +7,7 @@
     <title>
         <%= title %>
     </title>
+    <link rel="icon" type="image/png" href="/images/LogoGPX.png">
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <link rel='stylesheet' href='/stylesheets/trade.css' />
 </head>
@@ -94,12 +95,11 @@
                             <button class="chart-tab">Datos de trading</button>
                         </div>
                         <div class="chart-timeframes">
-                            <button class="timeframe-btn">1m</button>
-                            <button class="timeframe-btn">5m</button>
-                            <button class="timeframe-btn">15m</button>
-                            <button class="timeframe-btn active">1h</button>
-                            <button class="timeframe-btn">4h</button>
-                            <button class="timeframe-btn">1d</button>
+                            <button class="timeframe-btn" data-timeframe="1h">1h</button>
+                            <button class="timeframe-btn" data-timeframe="12h">12h</button>
+                            <button class="timeframe-btn" data-timeframe="24h">24h</button>
+                            <button class="timeframe-btn active" data-timeframe="7d">7d</button>
+                            <button class="timeframe-btn" data-timeframe="1m">1m</button>
                         </div>
                     </div>
                     <div class="chart-canvas-wrapper">
@@ -250,7 +250,10 @@
 
         </div>
 
+        <!-- Chart.js desde CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+        <script>
             // Trading form tabs
             document.querySelectorAll('.trading-tab').forEach(tab => {
                 tab.addEventListener('click', function () {
@@ -275,50 +278,178 @@
             document.getElementById('sellPrice').addEventListener('input', () => calculateTotal('sellPrice', 'sellAmount', 'sellTotal'));
             document.getElementById('sellAmount').addEventListener('input', () => calculateTotal('sellPrice', 'sellAmount', 'sellTotal'));
 
-            // Simple chart drawing
+            // --- Chart.js: gráfico de precios reales ---
             const canvas = document.getElementById('priceChart');
             const ctx = canvas.getContext('2d');
-            const basePrice = parseFloat('<%= coin.price_eur %>'.replace(/,/g, ''));
+            let priceChart = null;
 
-            // Generate random price data
-            const dataPoints = 50;
-            const prices = [];
-            for (let i = 0; i < dataPoints; i++) {
-                const variation = (Math.random() - 0.5) * basePrice * 0.1;
-                prices.push(basePrice + variation);
+            function createOrUpdateChart(labels, data) {
+                const isPositive = data.length > 1 ? (data[data.length - 1] - data[0]) >= 0 : <%= coin.change_24h >= 0 ? 'true' : 'false' %>;
+                const lineColor = isPositive ? '#00ff88' : '#ff4d4d';
+                const bgColor = isPositive ? 'rgba(0, 255, 136, 0.1)' : 'rgba(255, 77, 77, 0.1)';
+
+                if (priceChart) {
+                    priceChart.data.labels = labels;
+                    priceChart.data.datasets[0].data = data;
+                    priceChart.data.datasets[0].borderColor = lineColor;
+                    priceChart.data.datasets[0].backgroundColor = bgColor;
+                    priceChart.update();
+                    return;
+                }
+
+                priceChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: '<%= coin.symbol %>/EUR',
+                            data,
+                            borderColor: lineColor,
+                            backgroundColor: bgColor,
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#888',
+                                    maxTicksLimit: 6
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: '#888'
+                                },
+                                grid: {
+                                    color: 'rgba(255,255,255,0.05)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
+                    }
+                });
             }
 
-            // Draw chart
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            async function loadChartData(timeframe = '7d') {
+                try {
+                    const res = await fetch('/api/chart/<%= coin.symbol %>?timeframe=' + encodeURIComponent(timeframe));
+                    if (!res.ok) return;
+                    const json = await res.json();
+                    if (!json.success) return;
 
-            const maxPrice = Math.max(...prices);
-            const minPrice = Math.min(...prices);
-            const priceRange = maxPrice - minPrice;
-            const xStep = canvas.width / (dataPoints - 1);
+                    const points = Array.isArray(json.points) ? json.points : [];
+                    if (points.length === 0) {
+                        // Si aún no hay histórico suficiente, usa un valor plano inicial
+                        const base = Number('<%= coin.price_eur %>'.replace(/,/g, '')) || 0;
+                        createOrUpdateChart([new Date().toLocaleTimeString()], [base]);
+                        return;
+                    }
 
-            // Draw price line
-            ctx.beginPath();
-            ctx.strokeStyle = '<%= coin.change_24h >= 0 ? "#00ff88" : "#ff4d4d" %>';
-            ctx.lineWidth = 2;
-
-            prices.forEach((price, i) => {
-                const x = i * xStep;
-                const y = canvas.height - ((price - minPrice) / priceRange) * canvas.height;
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
+                    const labels = points.map(p => new Date(p.created_at).toLocaleTimeString());
+                    const data = points.map(p => Number(p.price_eur));
+                    createOrUpdateChart(labels, data);
+                } catch (e) {
+                    console.warn('No se pudieron cargar datos de gráfico:', e);
                 }
-            });
-            ctx.stroke();
+            }
 
-            // Draw area under line
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.lineTo(0, canvas.height);
-            ctx.closePath();
-            ctx.fillStyle = '<%= coin.change_24h >= 0 ? "rgba(0, 255, 136, 0.1)" : "rgba(255, 77, 77, 0.1)" %>';
-            ctx.fill();
+            // Gestión de botones de timeframe
+            let currentTimeframe = '7d';
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tf = btn.dataset.timeframe || '7d';
+                    currentTimeframe = tf;
+
+                    document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    loadChartData(tf);
+                });
+            });
+
+            // Carga inicial con el timeframe por defecto (7d)
+            loadChartData(currentTimeframe);
+
+            // --- Actualizar precio desde el backend cada minuto ---
+            async function fetchAndUpdatePrice() {
+                try {
+                    const response = await fetch('/api/prices/<%= coin.symbol %>');
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    if (!data.success || !data.coin) return;
+
+                    const priceEur = Number(data.coin.price_eur);
+                    const change24h = Number(data.coin.change_24h);
+
+                    // Actualizar cabecera de la moneda (precio grande)
+                    const priceLargeEl = document.querySelector('.price-large');
+                    if (priceLargeEl && Number.isFinite(priceEur)) {
+                        priceLargeEl.textContent = priceEur.toFixed(2) + ' €';
+                    }
+
+                    // Actualizar cambio 24h
+                    const change24hEl = document.querySelector('.coin-stats .stat:nth-child(2) .stat-value');
+                    if (change24hEl && Number.isFinite(change24h)) {
+                        change24hEl.textContent = (change24h >= 0 ? '+' : '') + change24h.toFixed(2) + '%';
+                        change24hEl.classList.toggle('positive', change24h >= 0);
+                        change24hEl.classList.toggle('negative', change24h < 0);
+                    }
+
+                    // Precio actual en el libro de órdenes
+                    const currentPriceEl = document.querySelector('.current-price-row .current-price');
+                    if (currentPriceEl && Number.isFinite(priceEur)) {
+                        currentPriceEl.textContent = priceEur.toFixed(2) + ' €';
+                        currentPriceEl.classList.toggle('positive', change24h >= 0);
+                        currentPriceEl.classList.toggle('negative', change24h < 0);
+                    }
+
+                    // Inputs de precio de los formularios de compra/venta
+                    if (Number.isFinite(priceEur)) {
+                        const buyPriceInput = document.getElementById('buyPrice');
+                        const sellPriceInput = document.getElementById('sellPrice');
+                        const priceStr = priceEur.toFixed(2);
+                        if (buyPriceInput) buyPriceInput.value = priceStr;
+                        if (sellPriceInput) sellPriceInput.value = priceStr;
+                    }
+
+                    // Añadir nuevo punto al gráfico si existe
+                    if (priceChart && Number.isFinite(priceEur)) {
+                        const nowLabel = new Date().toLocaleTimeString();
+                        priceChart.data.labels.push(nowLabel);
+                        priceChart.data.datasets[0].data.push(priceEur);
+
+                        // Limitar a los últimos 100 puntos
+                        if (priceChart.data.labels.length > 100) {
+                            priceChart.data.labels.shift();
+                            priceChart.data.datasets[0].data.shift();
+                        }
+
+                        priceChart.update();
+                    }
+                } catch (e) {
+                    console.warn('No se pudo actualizar el precio desde /api/prices:', e);
+                }
+            }
+
+            // Llamada inicial y cada 60 segundos
+            fetchAndUpdatePrice();
+            setInterval(fetchAndUpdatePrice, 30000);
         </script>
 
 </body>

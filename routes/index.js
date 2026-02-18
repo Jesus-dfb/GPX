@@ -10,12 +10,14 @@ const MonedaDAO = require('../database/dao/moneda-dao');
 const UsuarioDAO = require('../database/dao/usuario-dao');
 const WalletDAO = require('../database/dao/wallet-dao');
 const TransaccionDAO = require('../database/dao/transaccion-dao');
+const PriceHistoryDAO = require('../database/dao/price-history-dao');
 
 const db = Database.getInstance();
 const monedaDao = new MonedaDAO(db);
 const usuarioDao = new UsuarioDAO(db);
 const walletDao = new WalletDAO(db);
 const transaccionDao = new TransaccionDAO(db);
+const priceHistoryDao = new PriceHistoryDAO(db);
 
 const {
   requireAuth
@@ -27,6 +29,10 @@ const {
 const CoinMarketCapService = require('../services/coinmarketcap');
 const EmailService = require('../services/email');
 // ---------------------
+
+// --- Estado de precios en memoria ---
+let lastPriceUpdate = null;
+const PRICE_UPDATE_INTERVAL_MS = 30 * 1000; // 1 minuto
 
 
 // --- DEBUG AL ARRANCAR ---
@@ -55,7 +61,9 @@ console.log("---------------------------------------");
 async function updatePricesFromAPI() {
   // Si no hay API key, simplemente devolver las monedas existentes
   if (!process.env.COINMARKETCAP_API_KEY) {
-    return monedaDao.getAll();
+    const coins = monedaDao.getAll();
+    lastPriceUpdate = new Date().toISOString();
+    return coins;
   }
 
   try {
@@ -69,17 +77,50 @@ async function updatePricesFromAPI() {
       if (cmcService.isAvailable(coin.symbol) && prices.has(coin.symbol)) {
         const priceData = prices.get(coin.symbol);
         monedaDao.updatePrice(coin.symbol, priceData.priceEur, priceData.change24h);
+
+        // Guardar punto de histórico para gráficas (solo si el precio es válido)
+        if (Number.isFinite(priceData.priceEur)) {
+          try {
+            priceHistoryDao.insert(coin.symbol, priceData.priceEur);
+          } catch (e) {
+            console.warn('No se pudo guardar histórico de precio para', coin.symbol, e.message);
+          }
+        }
       }
     }
 
     // Recargar monedas con precios actualizados
-    return monedaDao.getAll();
+    const updatedCoins = monedaDao.getAll();
+    lastPriceUpdate = new Date().toISOString();
+    return updatedCoins;
   } catch (error) {
     // Si falla la API, devolver las monedas existentes
     console.warn('No se pudieron actualizar precios desde CoinMarketCap:', error.message);
-    return monedaDao.getAll();
+    const coins = monedaDao.getAll();
+    // Aun así actualizamos la marca de tiempo para saber que lo intentamos
+    lastPriceUpdate = new Date().toISOString();
+    return coins;
   }
 }
+
+// --- Actualización periódica de precios (cada minuto) ---
+(async function startPriceUpdater() {
+  try {
+    await updatePricesFromAPI();
+    console.log('✅ Precios iniciales actualizados desde CoinMarketCap (si está configurado).');
+  } catch (err) {
+    console.warn('⚠️ No se pudieron actualizar los precios al iniciar:', err.message);
+  }
+
+  setInterval(async () => {
+    try {
+      await updatePricesFromAPI();
+      console.log('✅ Precios actualizados periódicamente desde CoinMarketCap.');
+    } catch (err) {
+      console.warn('⚠️ Error en la actualización periódica de precios:', err.message);
+    }
+  }, PRICE_UPDATE_INTERVAL_MS);
+})();
 
 /* GET home page. */
 router.get('/', async function (req, res, next) {
@@ -235,6 +276,66 @@ router.get('/trade/:symbol', requireAuth, function (req, res, next) {
   } catch (error) {
     next(error);
   }
+});
+
+// API: precios actualizados para una moneda concreta (usado por la vista de trading)
+router.get('/api/prices/:symbol', requireAuth, function (req, res) {
+  const symbol = req.params.symbol.toUpperCase();
+  const coins = monedaDao.getAll();
+  const coin = coins.find(c => c.symbol === symbol);
+
+  if (!coin) {
+    return res.status(404).json({
+      success: false,
+      error: 'Moneda no encontrada'
+    });
+  }
+
+  res.json({
+    success: true,
+    coin,
+    lastUpdate: lastPriceUpdate
+  });
+});
+
+// API: datos para gráfica de una moneda concreta
+router.get('/api/chart/:symbol', requireAuth, function (req, res) {
+  const symbol = req.params.symbol.toUpperCase();
+  const timeframe = String(req.query.timeframe || '7d').toLowerCase();
+
+  // Calcular fecha mínima según timeframe
+  const now = Date.now();
+  let rangeMs;
+  switch (timeframe) {
+    case '1h':
+      rangeMs = 1 * 60 * 60 * 1000;
+      break;
+    case '12h':
+      rangeMs = 12 * 60 * 60 * 1000;
+      break;
+    case '24h':
+      rangeMs = 24 * 60 * 60 * 1000;
+      break;
+    case '7d':
+      rangeMs = 7 * 24 * 60 * 60 * 1000;
+      break;
+    case '1m':
+      rangeMs = 30 * 24 * 60 * 60 * 1000; // aprox 30 días
+      break;
+    default:
+      rangeMs = 7 * 24 * 60 * 60 * 1000;
+      break;
+  }
+
+  const sinceIso = new Date(now - rangeMs).toISOString();
+  const points = priceHistoryDao.getPointsSince(symbol, sinceIso, 500);
+
+  return res.json({
+    success: true,
+    symbol,
+    timeframe,
+    points
+  });
 });
 
 router.get('/deposit', requireAuth, (req, res) => {

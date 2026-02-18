@@ -29,6 +29,7 @@ class Database {
       require("./initialize-monedas")(Database.#db);
       require("./initialize-wallets")(Database.#db);
       require("./initialize-transacciones")(Database.#db);
+      require("./initialize-price-history")(Database.#db);
     }
 
     return Database.#db;
