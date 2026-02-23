@@ -240,10 +240,16 @@ router.get('/market', async function (req, res, next) {
     // Actualizar precios desde CoinMarketCap
     const coins = await updatePricesFromAPI();
 
-    // Sort for gainers/losers
-    const sortedByChange = [...coins].sort((a, b) => b.change_24h - a.change_24h);
-    const gainers = sortedByChange.slice(0, 4);
-    const losers = sortedByChange.slice().reverse().slice(0, 4);
+    // Ordenar monedas por ganancias y pérdidas en 24h
+    const gainers = [...coins]
+      .filter(c => c.change_24h > 0)
+      .sort((a, b) => b.change_24h - a.change_24h)
+      .slice(0, 4);
+
+    const losers = [...coins]
+      .filter(c => c.change_24h < 0)
+      .sort((a, b) => a.change_24h - b.change_24h)
+      .slice(0, 4);
 
     res.render('market', {
       title: 'Mercado - Galpe Exchange',

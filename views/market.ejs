@@ -86,7 +86,9 @@
                                         <%- include('partials/coin-icon', { symbol: coin.symbol }) %>
                                         <%= coin.name %>
                                     </div>
-                                    <div class="text-green">+<%= coin.change_24h %> %</div>
+                                    <div class="<%= coin.change_24h >= 0 ? 'text-green' : 'text-red' %>">
+                                        <%= coin.change_24h >= 0 ? '+' : '' %><%= coin.change_24h %> %
+                                    </div>
                                 </a>
                                 <% }); %>
                                     <% } else { %>
