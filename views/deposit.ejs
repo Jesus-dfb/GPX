@@ -65,8 +65,20 @@
                                     <div class="form-group">
                                         <label>Moneda</label>
                                         <select name="currency">
+                                            <!-- € por defecto -->
                                             <option value="eur">EUR</option>
-                                            <option value="btc">BTC</option>
+
+                                            <!-- Otras monedas disponibles en el sistema -->
+                                            <% if (typeof coins !== 'undefined' && coins && coins.length) { %>
+                                                <% coins.forEach(function(coin) { 
+                                                    const symbol = String(coin.symbol || '').toLowerCase();
+                                                    if (symbol === 'eur') return;
+                                                %>
+                                                    <option value="<%= symbol %>">
+                                                        <%= coin.symbol %> - <%= coin.name %>
+                                                    </option>
+                                                <% }); %>
+                                            <% } %>
                                         </select>
                                     </div>
 

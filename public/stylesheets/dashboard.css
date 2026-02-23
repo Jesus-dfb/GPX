@@ -52,6 +52,36 @@ body {
     font-weight: 500;
 }
 
+.balance-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.balance-eye-toggle {
+    border: none;
+    background: transparent;
+    color: #777;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 999px;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.balance-eye-toggle:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.balance-eye-toggle.is-hidden {
+    color: #444;
+}
+
 .balance-amount {
     font-size: 42px;
     /* Aumentado de 36px */
@@ -60,6 +90,34 @@ body {
     /* Aumentado de 5px */
     letter-spacing: -0.5px;
     /* Añadido para mejor legibilidad */
+}
+
+.balance-amount .balance-masked {
+    letter-spacing: 0.25em;
+}
+
+.balance-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: #aaa;
+}
+
+.balance-currency-select {
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    padding: 4px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.balance-currency-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
 }
 
 .balance-fiat {

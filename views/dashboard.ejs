@@ -24,20 +24,43 @@
 
             <div class="balance-card">
                 <div class="balance-info">
-                    <h2>Tu balance 👁️</h2>
+                    <div class="balance-header">
+                        <h2>Tu balance</h2>
+                        <button type="button" class="balance-eye-toggle" aria-label="Ocultar o mostrar saldo">
+                            👁️
+                        </button>
+                    </div>
                     <% if (locals.user && user.balance) { %>
                         <div class="balance-amount">
-                            <%= user.balance.btc %> BTC ⌄
+                            <span class="balance-value"></span>
+                            <span class="balance-masked">••••••••</span>
                         </div>
-                        <div class="balance-fiat">
-                            <%= user.balance.eur %> €
+                        <div class="balance-controls">
+                            <label class="balance-currency-label" for="balance-currency-select">Moneda:</label>
+                            <select id="balance-currency-select" class="balance-currency-select">
+                                <option value="EUR">EUR</option>
+                                <% if (locals.coins && coins && coins.length) { %>
+                                    <% coins.forEach(function(coin) { if (coin.symbol !== 'EUR') { %>
+                                        <option value="<%= coin.symbol %>"><%= coin.symbol %></option>
+                                    <% } }) %>
+                                <% } %>
+                            </select>
                         </div>
                         <% } else { %>
                             <div class="balance-amount">
-                                0.00000000 BTC ⌄
+                                <span class="balance-value">0.00 €</span>
+                                <span class="balance-masked">••••••••</span>
                             </div>
-                            <div class="balance-fiat">
-                                0.00 €
+                            <div class="balance-controls">
+                                <label class="balance-currency-label" for="balance-currency-select">Moneda:</label>
+                                <select id="balance-currency-select" class="balance-currency-select">
+                                    <option value="EUR">EUR</option>
+                                    <% if (locals.coins && coins && coins.length) { %>
+                                        <% coins.forEach(function(coin) { if (coin.symbol !== 'EUR') { %>
+                                            <option value="<%= coin.symbol %>"><%= coin.symbol %></option>
+                                        <% } }) %>
+                                    <% } %>
+                                </select>
                             </div>
                             <% } %>
                 </div>
@@ -112,6 +135,86 @@
 
         <%- include('partials/footer') %>
 
+        <%
+            const uiBalances = {};
+            uiBalances['EUR'] = (locals.user && user.balance && user.balance.eur) ? user.balance.eur : 0;
+            if (locals.user && user.balance && user.balance.btc) {
+                uiBalances['BTC'] = user.balance.btc;
+            }
+            if (locals.user && user.assets && user.assets.length) {
+                user.assets.forEach(function(asset) {
+                    uiBalances[asset.symbol] = asset.amount || 0;
+                });
+            }
+            if (locals.coins && coins && coins.length) {
+                coins.forEach(function(coin) {
+                    if (typeof uiBalances[coin.symbol] !== 'number') {
+                        uiBalances[coin.symbol] = 0;
+                    }
+                });
+            }
+        %>
+
+        <div id="balance-data" data-balances='<%- JSON.stringify(uiBalances) %>'></div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var eyeBtn = document.querySelector('.balance-eye-toggle');
+                var valueEl = document.querySelector('.balance-value');
+                var maskedEl = document.querySelector('.balance-masked');
+                var selectEl = document.getElementById('balance-currency-select');
+
+                if (!eyeBtn || !valueEl || !maskedEl || !selectEl) {
+                    return;
+                }
+
+                var balances = {};
+                var balanceDataEl = document.getElementById('balance-data');
+                if (balanceDataEl && balanceDataEl.dataset && balanceDataEl.dataset.balances) {
+                    try {
+                        balances = JSON.parse(balanceDataEl.dataset.balances);
+                    } catch (e) {
+                        balances = {};
+                    }
+                }
+
+                function formatBalance(symbol) {
+                    var amount = balances[symbol] || 0;
+                    if (symbol === 'BTC') {
+                        return amount.toFixed(8) + ' BTC';
+                    }
+                    if (symbol === 'EUR') {
+                        return amount.toFixed(2) + ' €';
+                    }
+                    return amount.toFixed(8) + ' ' + symbol;
+                }
+
+                function updateDisplay() {
+                    var symbol = selectEl.value || 'EUR';
+                    valueEl.textContent = formatBalance(symbol);
+                }
+
+                var isHidden = false;
+                maskedEl.style.display = 'none';
+
+                eyeBtn.addEventListener('click', function () {
+                    isHidden = !isHidden;
+                    if (isHidden) {
+                        valueEl.style.display = 'none';
+                        maskedEl.style.display = 'inline-block';
+                        eyeBtn.classList.add('is-hidden');
+                    } else {
+                        valueEl.style.display = 'inline-block';
+                        maskedEl.style.display = 'none';
+                        eyeBtn.classList.remove('is-hidden');
+                    }
+                });
+
+                selectEl.addEventListener('change', updateDisplay);
+
+                updateDisplay();
+            });
+        </script>
 
 </body>
 

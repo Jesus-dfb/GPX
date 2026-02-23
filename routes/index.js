@@ -345,11 +345,14 @@ router.get('/api/chart/:symbol', requireAuth, function (req, res) {
 });
 
 router.get('/deposit', requireAuth, (req, res) => {
+  const coins = monedaDao.getAll();
+
   res.render('deposit', {
     title: 'Depositar - Galpe Exchange',
     user: req.session.user,
     error: null,
-    success: null
+    success: null,
+    coins
   });
 });
 
@@ -360,22 +363,26 @@ router.post('/deposit', requireAuth, (req, res, next) => {
     const curr = (currency || 'eur').toUpperCase();
     const parsedAmount = Number.parseFloat(String(amount).replace(',', '.'));
 
+    const coins = monedaDao.getAll();
+    const allowed = new Set(['EUR', ...coins.map(c => String(c.symbol).toUpperCase())]);
+
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       return res.render('deposit', {
         title: 'Depositar - Galpe Exchange',
         user: req.session.user,
         error: 'Introduce una cantidad válida (mayor que 0).',
-        success: null
+        success: null,
+        coins
       });
     }
 
-    const allowed = new Set(['EUR', 'BTC']);
     if (!allowed.has(curr)) {
       return res.render('deposit', {
         title: 'Depositar - Galpe Exchange',
         user: req.session.user,
         error: 'Moneda no soportada.',
-        success: null
+        success: null,
+        coins
       });
     }
 
@@ -411,7 +418,8 @@ router.post('/deposit', requireAuth, (req, res, next) => {
       title: 'Depositar - Galpe Exchange',
       user: req.session.user,
       error: null,
-      success: `Depósito: +${parsedAmount} ${curr}`
+      success: `Depósito: +${parsedAmount} ${curr}`,
+      coins
     });
   } catch (err) {
     next(err);
